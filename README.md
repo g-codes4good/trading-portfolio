@@ -1,70 +1,97 @@
 # Trading Portfolio Analysis
 
-An AI-powered web application for technical analysis of stock portfolios. Organizes stocks into four categories (long-term held, long-term unheld, short-term held, short-term unheld) and provides real-time technical signals.
+An AI-powered technical analysis platform with two interfaces: command-line for deep analysis and web for quick portfolio checks. Organizes stocks into four categories (long-term held, long-term unheld, short-term held, short-term unheld) and provides real-time technical signals.
 
-**Built with:** Cloudflare Pages, Pages Functions, vanilla JavaScript, and AI-assisted development
+**Built with:** Python + CLI, Cloudflare Pages, vanilla JavaScript, and AI-assisted development
 
-## Features
+## Quick Start
 
-- 📊 **Multi-category stock management** — Organize holdings and watchlist into four strategy-based categories
-- 📈 **Technical analysis** — Real-time EMA, RSI, ADX, and pullback detection
-- 🎯 **Smart signals** — BUY/SELL/HOLD recommendations based on market regime and technical indicators
-- 📅 **Historical analysis** — Analyze portfolio performance on any date
-- 🌐 **Cloud-deployed** — Live on Cloudflare Pages for instant access
-
-## Local Development
-
-Install dependencies:
+### Web Version (Browser)
 ```bash
+cd web
 npm install
-```
-
-Run development server:
-```bash
 npm run dev
+# Visit http://localhost:8788
 ```
 
-Visit `http://localhost:8788`
-
-## Deployment
-
-Deploy to Cloudflare Pages:
+### CLI Version (Terminal)
 ```bash
-npm run deploy
+cd cli
+python -m pip install -r requirements.txt
+python main.py
 ```
-
-## How It Works
-
-1. **Input stocks** in four categories and select analysis date
-2. **API analyzes** each stock using:
-   - 200-day EMA (long-term) / 50-day EMA (short-term) for trend
-   - RSI (14) for momentum
-   - ADX for trend strength
-   - Pullback detection for entry points
-3. **Market regime** assessment via SPY analysis
-4. **Signals generated** based on technical criteria
-
-## About AI Usage
-
-This project was developed with AI assistance. The technical analysis engine, frontend form design, and API architecture were collaboratively designed with Claude AI to showcase modern trading technology patterns.
 
 ## Project Structure
 
+This is a **monorepo** with separate implementations of the same analysis engine:
+
 ```
-├── public/
-│   └── index.html           # Frontend form and results display
-├── functions/
-│   └── api/
-│       └── analyze.js       # Technical analysis API endpoint
-├── wrangler.toml            # Cloudflare Pages configuration
-├── package.json             # Dependencies
-└── README.md                # This file
+trading-portfolio/
+├── cli/                          # Command-line interface (Python)
+│   ├── main.py                   # Interactive menu
+│   ├── data_fetcher.py          # Live data via yfinance
+│   ├── indicators.py            # Technical analysis engine
+│   ├── portfolio.py             # Portfolio state management
+│   ├── display.py               # Rich terminal output
+│   └── requirements.txt
+│
+├── web/                          # Browser interface (JavaScript)
+│   ├── public/
+│   │   └── index.html           # Form + results display
+│   ├── functions/
+│   │   └── api/
+│   │       └── analyze.js       # Technical analysis API
+│   └── package.json
+│
+├── shared/                       # Documentation & logic
+│   └── ANALYSIS_LOGIC.md        # Core algorithm reference
+│
+├── wrangler.toml                # Cloudflare Pages config
+└── README.md                    # This file
 ```
+
+## Features
+
+- 📊 **Multi-category stock management** — Organize by strategy (long/short × held/unheld)
+- 📈 **Technical analysis** — EMA, RSI, ADX, pullback detection
+- 🎯 **Smart signals** — BUY/SELL/HOLD based on market regime
+- 📅 **Historical analysis** — Analyze any date with both versions
+- 🌐 **Dual interfaces** — CLI for power users, web for quick checks
+
+## How Analysis Works
+
+Both versions implement the same algorithm:
+
+1. **Fetch OHLCV data** for each stock (live from Yahoo Finance)
+2. **Calculate indicators**:
+   - Trend: 200-day EMA (long-term) or 50-day EMA (short-term)
+   - Momentum: RSI (14-period)
+   - Strength: ADX (14-period)
+   - Entry points: Pullback detection (5% long-term, 3% short-term)
+3. **Generate signals** based on market regime (bull/bear/transition)
+4. **Display results** with criteria met/unmet
+
+See [`shared/ANALYSIS_LOGIC.md`](shared/ANALYSIS_LOGIC.md) for technical details.
+
+## Deployment
+
+### Web Version to Cloudflare Pages
+```bash
+cd web
+wrangler login
+wrangler deploy
+```
+Live at: `trading-portfolio.pages.dev`
+
+### CLI Version
+No deployment needed—runs locally after installing Python dependencies.
+
+## About AI Usage
+
+This project was developed with AI assistance. Both interfaces implement the same trading logic—Claude AI helped design the technical analysis engine, form layouts, and API architecture to showcase modern fintech patterns.
 
 ## Future Enhancements
 
-- Portfolio persistence (save/load analysis history)
-- More advanced indicators (MACD, Bollinger Bands)
-- Real-time price updates via WebSocket
-- Portfolio backtesting
-- Email alerts for signals
+- **Shared**: MACD, Bollinger Bands, sector rotation, backtesting
+- **CLI**: Portfolio persistence, interactive watchlist editor
+- **Web**: Real-time updates, alert system, historical comparison charts

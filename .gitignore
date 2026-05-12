@@ -1,11 +1,23 @@
-node_modules/
-.wrangler/
-*.pyc
-__pycache__/
+# Web
+web/node_modules/
+web/.wrangler/
+web/dist/
+
+# Python
+cli/__pycache__/
+cli/*.pyc
+cli/.venv/
+cli/venv/
+*.egg-info/
+
+# General
 .env
+.env.local
 .DS_Store
 *.log
-dist/
 build/
-.venv/
-venv/
+dist/
+.idea/
+.vscode/
+*.swp
+*.swo
