@@ -6,7 +6,5 @@ compatibility_date = "2024-12-18"
 command = "npm install"
 cwd = "./web"
 
-[[docs]]
-# Cloudflare Pages will look for:
-# - Static files in: web/public/
-# - API functions in: web/functions/
+[env.production]
+pages_build_output_dir = "web/public"
