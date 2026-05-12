@@ -8,7 +8,6 @@ An AI-powered technical analysis platform with two interfaces: command-line for 
 
 ### Web Version (Browser)
 ```bash
-cd web
 npm install
 npm run dev
 # Visit http://localhost:8788
@@ -27,6 +26,11 @@ This is a **monorepo** with separate implementations of the same analysis engine
 
 ```
 trading-portfolio/
+├── public/                       # Static files (web interface)
+│   └── index.html               # Form + results display
+├── functions/                    # Cloudflare Pages Functions
+│   └── api/
+│       └── analyze.js           # Technical analysis API
 ├── cli/                          # Command-line interface (Python)
 │   ├── main.py                   # Interactive menu
 │   ├── data_fetcher.py          # Live data via yfinance
@@ -34,19 +38,10 @@ trading-portfolio/
 │   ├── portfolio.py             # Portfolio state management
 │   ├── display.py               # Rich terminal output
 │   └── requirements.txt
-│
-├── web/                          # Browser interface (JavaScript)
-│   ├── public/
-│   │   └── index.html           # Form + results display
-│   ├── functions/
-│   │   └── api/
-│   │       └── analyze.js       # Technical analysis API
-│   └── package.json
-│
 ├── shared/                       # Documentation & logic
 │   └── ANALYSIS_LOGIC.md        # Core algorithm reference
-│
 ├── wrangler.toml                # Cloudflare Pages config
+├── package.json                 # Web dependencies
 └── README.md                    # This file
 ```
 
@@ -76,11 +71,12 @@ See [`shared/ANALYSIS_LOGIC.md`](shared/ANALYSIS_LOGIC.md) for technical details
 ## Deployment
 
 ### Web Version to Cloudflare Pages
-```bash
-cd web
-wrangler login
-wrangler deploy
-```
+Connected via GitHub—automatically deploys on push!
+
+Dashboard settings:
+- **Build output directory:** `public`
+- **Build command:** (blank)
+
 Live at: `trading-portfolio.pages.dev`
 
 ### CLI Version

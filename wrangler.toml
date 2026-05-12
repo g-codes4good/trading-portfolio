@@ -1,2 +1,2 @@
 name = "trading-portfolio"
-pages_build_output_dir = "web/public"
+pages_build_output_dir = "public"
