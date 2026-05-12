@@ -111,10 +111,20 @@
     .stock-input {
       display: flex;
       gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: flex-start;
     }
 
     .stock-input input {
       flex: 1;
+      min-width: 150px;
+    }
+
+    .input-helper {
+      font-size: 0.8rem;
+      color: #999;
+      width: 100%;
+      margin-top: -0.5rem;
     }
 
     button {
@@ -153,30 +163,49 @@
     .stock-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      width: 100%;
+      min-height: 2rem;
     }
 
     .stock-tag {
-      background: #f0f0f0;
-      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.6rem 1.2rem;
       border-radius: 20px;
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 0.9rem;
-      color: #333;
+      gap: 0.75rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .stock-tag .remove {
       cursor: pointer;
-      color: #999;
+      color: rgba(255, 255, 255, 0.8);
       font-weight: bold;
       transition: color 0.2s;
+      font-size: 1.2rem;
+      line-height: 1;
+      padding: 0;
     }
 
     .stock-tag .remove:hover {
-      color: #666;
+      color: white;
     }
 
     .controls {
@@ -387,36 +416,40 @@
           <div class="form-section">
             <h3>Long-term Held</h3>
             <div class="stock-input">
-              <input type="text" class="stock-ticker" data-category="long-term-held" placeholder="e.g., AAPL" />
+              <input type="text" class="stock-ticker" data-category="long-term-held" placeholder="e.g., AAPL or AAPL, MSFT or paste multiple" />
               <button type="button" class="btn-add" onclick="addStock(this)">Add</button>
             </div>
+            <div class="input-helper">Paste: AAPL,MSFT,TSLA (comma) or AAPL\nMSFT\nTSLA (lines)</div>
             <div class="stock-tags" data-category="long-term-held"></div>
           </div>
 
           <div class="form-section">
             <h3>Long-term Unheld</h3>
             <div class="stock-input">
-              <input type="text" class="stock-ticker" data-category="long-term-unheld" placeholder="e.g., MSFT" />
+              <input type="text" class="stock-ticker" data-category="long-term-unheld" placeholder="e.g., MSFT or AAPL, MSFT or paste multiple" />
               <button type="button" class="btn-add" onclick="addStock(this)">Add</button>
             </div>
+            <div class="input-helper">Paste: AAPL,MSFT,TSLA (comma) or AAPL\nMSFT\nTSLA (lines)</div>
             <div class="stock-tags" data-category="long-term-unheld"></div>
           </div>
 
           <div class="form-section">
             <h3>Short-term Held</h3>
             <div class="stock-input">
-              <input type="text" class="stock-ticker" data-category="short-term-held" placeholder="e.g., TSLA" />
+              <input type="text" class="stock-ticker" data-category="short-term-held" placeholder="e.g., TSLA or AAPL, MSFT or paste multiple" />
               <button type="button" class="btn-add" onclick="addStock(this)">Add</button>
             </div>
+            <div class="input-helper">Paste: AAPL,MSFT,TSLA (comma) or AAPL\nMSFT\nTSLA (lines)</div>
             <div class="stock-tags" data-category="short-term-held"></div>
           </div>
 
           <div class="form-section">
             <h3>Short-term Unheld</h3>
             <div class="stock-input">
-              <input type="text" class="stock-ticker" data-category="short-term-unheld" placeholder="e.g., GOOGL" />
+              <input type="text" class="stock-ticker" data-category="short-term-unheld" placeholder="e.g., GOOGL or AAPL, MSFT or paste multiple" />
               <button type="button" class="btn-add" onclick="addStock(this)">Add</button>
             </div>
+            <div class="input-helper">Paste: AAPL,MSFT,TSLA (comma) or AAPL\nMSFT\nTSLA (lines)</div>
             <div class="stock-tags" data-category="short-term-unheld"></div>
           </div>
 
@@ -467,22 +500,47 @@
     function addStock(button) {
       const input = button.previousElementSibling;
       const category = input.dataset.category;
-      const ticker = input.value.toUpperCase().trim();
+      let value = input.value.toUpperCase().trim();
 
-      if (!ticker) {
+      if (!value) {
         showError('Please enter a ticker symbol');
         return;
       }
 
-      if (stocks[category].includes(ticker)) {
-        showError(`${ticker} is already added to ${category}`);
+      // Parse multiple tickers (comma or newline separated)
+      const tickers = value
+        .split(/[,\n]/)
+        .map(t => t.trim())
+        .filter(t => t.length > 0);
+
+      if (tickers.length === 0) {
+        showError('Please enter valid ticker symbols');
         return;
       }
 
-      stocks[category].push(ticker);
+      let added = 0;
+      let skipped = [];
+
+      tickers.forEach(ticker => {
+        if (stocks[category].includes(ticker)) {
+          skipped.push(ticker);
+        } else {
+          stocks[category].push(ticker);
+          added++;
+        }
+      });
+
       input.value = '';
       renderTags(category);
-      showError(''); // Clear errors
+
+      if (added > 0) {
+        showError('');
+        if (skipped.length > 0) {
+          showError(`Added ${added} stock(s). ${skipped.join(', ')} already present.`);
+        }
+      } else if (skipped.length > 0) {
+        showError(`${skipped.join(', ')} already added to ${category}`);
+      }
     }
 
     function removeStock(category, ticker) {
@@ -620,13 +678,24 @@
 
     document.getElementById('analysisForm').addEventListener('submit', analyzePortfolio);
 
-    // Allow Enter key to add stocks
+    // Allow Enter key to add stocks (Shift+Enter for multiline)
     document.querySelectorAll('.stock-ticker').forEach(input => {
       input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
           addStock(input.nextElementSibling);
         }
+      });
+
+      // Handle paste events for bulk input
+      input.addEventListener('paste', (e) => {
+        setTimeout(() => {
+          // If pasted content has multiple tickers, auto-add them
+          const value = input.value.trim();
+          if (value.includes(',') || value.includes('\n')) {
+            addStock(input.nextElementSibling);
+          }
+        }, 10);
       });
     });
   </script>
