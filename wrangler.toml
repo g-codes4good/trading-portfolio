@@ -1,8 +1,12 @@
 name = "trading-portfolio"
 type = "javascript"
-dir = "web/public"
-account_id = ""
+compatibility_date = "2024-12-18"
 
 [build]
 command = "npm install"
 cwd = "./web"
+
+[[docs]]
+# Cloudflare Pages will look for:
+# - Static files in: web/public/
+# - API functions in: web/functions/
