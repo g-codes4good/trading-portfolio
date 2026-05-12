@@ -1,0 +1,23 @@
+name = "trading-portfolio"
+type = "javascript"
+account_id = ""
+workers_dev = true
+routes = [
+  { pattern = "example.com/api/*", zone_name = "example.com" }
+]
+
+[env.production]
+routes = [
+  { pattern = "trading-portfolio.pages.dev/*", zone_name = "" }
+]
+
+[[env.production.analytics_engine_datasets]]
+dataset = "trading_analysis"
+
+[build]
+command = "npm install"
+cwd = "./"
+
+[env.production.build]
+command = "npm install"
+cwd = "./"

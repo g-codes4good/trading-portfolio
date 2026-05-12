@@ -1,0 +1,22 @@
+{
+  "name": "trading-portfolio",
+  "version": "1.0.0",
+  "description": "AI-powered technical analysis for trading portfolio",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev public",
+    "deploy": "wrangler pages deploy public"
+  },
+  "keywords": [
+    "trading",
+    "portfolio",
+    "technical-analysis",
+    "stocks"
+  ],
+  "author": "Greta",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "latest"
+  }
+}

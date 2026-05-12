@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trading Portfolio Analysis</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 3rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .form-card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      margin-bottom: 2rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .form-section h3 {
+      color: #333;
+      font-size: 1.1rem;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 0.5rem;
+    }
+
+    .date-section {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    .date-section label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      color: #555;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"],
+    input[type="date"] {
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .stock-input {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .stock-input input {
+      flex: 1;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .btn-add {
+      background: #667eea;
+      color: white;
+      padding: 0.75rem 1rem;
+    }
+
+    .btn-add:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-remove {
+      background: #ff6b6b;
+      color: white;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .btn-remove:hover {
+      background: #ff5252;
+    }
+
+    .stock-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .stock-tag {
+      background: #f0f0f0;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    .stock-tag .remove {
+      cursor: pointer;
+      color: #999;
+      font-weight: bold;
+      transition: color 0.2s;
+    }
+
+    .stock-tag .remove:hover {
+      color: #666;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .btn-analyze {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 3rem;
+      font-size: 1.1rem;
+    }
+
+    .btn-analyze:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-analyze:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-clear {
+      background: #999;
+      color: white;
+      padding: 1rem 2rem;
+    }
+
+    .btn-clear:hover {
+      background: #777;
+    }
+
+    .results-section {
+      display: none;
+    }
+
+    .results-section.active {
+      display: block;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .signal-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid;
+    }
+
+    .signal-card.buy {
+      border-left-color: #51cf66;
+    }
+
+    .signal-card.sell {
+      border-left-color: #ff6b6b;
+    }
+
+    .signal-card.hold {
+      border-left-color: #ffd43b;
+    }
+
+    .signal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 1rem;
+    }
+
+    .ticker {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .signal-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: white;
+    }
+
+    .signal-badge.buy {
+      background: #51cf66;
+    }
+
+    .signal-badge.sell {
+      background: #ff6b6b;
+    }
+
+    .signal-badge.hold {
+      background: #ffd43b;
+      color: #333;
+    }
+
+    .signal-details {
+      font-size: 0.9rem;
+      color: #666;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .detail-label {
+      color: #999;
+      font-weight: 500;
+    }
+
+    .detail-value {
+      color: #333;
+      font-weight: 600;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: white;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: #ff6b6b;
+      color: white;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .error.active {
+      display: block;
+    }
+
+    .market-regime {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .regime-badge {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+
+    .regime-bull {
+      background: #51cf66;
+      color: white;
+    }
+
+    .regime-bear {
+      background: #ff6b6b;
+      color: white;
+    }
+
+    .regime-transition {
+      background: #ffd43b;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📈 Trading Portfolio Analysis</h1>
+      <p class="subtitle">Technical analysis for your stock portfolio</p>
+    </header>
+
+    <div class="form-card">
+      <form id="analysisForm">
+        <div class="form-grid">
+          <div class="form-section">
+            <h3>Long-term Held</h3>
+            <div class="stock-input">
+              <input type="text" class="stock-ticker" data-category="long-term-held" placeholder="e.g., AAPL" />
+              <button type="button" class="btn-add" onclick="addStock(this)">Add</button>
+            </div>
+            <div class="stock-tags" data-category="long-term-held"></div>
+          </div>
+
+          <div class="form-section">
+            <h3>Long-term Unheld</h3>
+            <div class="stock-input">
+              <input type="text" class="stock-ticker" data-category="long-term-unheld" placeholder="e.g., MSFT" />
+              <button type="button" class="btn-add" onclick="addStock(this)">Add</button>
+            </div>
+            <div class="stock-tags" data-category="long-term-unheld"></div>
+          </div>
+
+          <div class="form-section">
+            <h3>Short-term Held</h3>
+            <div class="stock-input">
+              <input type="text" class="stock-ticker" data-category="short-term-held" placeholder="e.g., TSLA" />
+              <button type="button" class="btn-add" onclick="addStock(this)">Add</button>
+            </div>
+            <div class="stock-tags" data-category="short-term-held"></div>
+          </div>
+
+          <div class="form-section">
+            <h3>Short-term Unheld</h3>
+            <div class="stock-input">
+              <input type="text" class="stock-ticker" data-category="short-term-unheld" placeholder="e.g., GOOGL" />
+              <button type="button" class="btn-add" onclick="addStock(this)">Add</button>
+            </div>
+            <div class="stock-tags" data-category="short-term-unheld"></div>
+          </div>
+
+          <div class="date-section">
+            <label>
+              Analysis Date
+              <input type="date" id="analysisDate" />
+            </label>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button type="submit" class="btn-analyze" id="analyzeBtn">Analyze Portfolio</button>
+          <button type="button" class="btn-clear" onclick="clearAll()">Clear All</button>
+        </div>
+
+        <div class="error" id="errorMsg"></div>
+      </form>
+    </div>
+
+    <div id="loading" class="loading" style="display: none;">
+      <div class="loading-spinner"></div>
+      <p style="margin-top: 1rem;">Analyzing your portfolio...</p>
+    </div>
+
+    <div class="results-section" id="resultsSection">
+      <div class="market-regime" id="marketRegimeCard" style="display: none;">
+        <h2>Market Regime</h2>
+        <div id="regimeContent"></div>
+      </div>
+
+      <h2 style="color: white; margin-bottom: 1rem;">Technical Signals</h2>
+      <div class="results-grid" id="resultsGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    const stocks = {
+      'long-term-held': [],
+      'long-term-unheld': [],
+      'short-term-held': [],
+      'short-term-unheld': []
+    };
+
+    // Set date to today by default
+    document.getElementById('analysisDate').valueAsDate = new Date();
+
+    function addStock(button) {
+      const input = button.previousElementSibling;
+      const category = input.dataset.category;
+      const ticker = input.value.toUpperCase().trim();
+
+      if (!ticker) {
+        showError('Please enter a ticker symbol');
+        return;
+      }
+
+      if (stocks[category].includes(ticker)) {
+        showError(`${ticker} is already added to ${category}`);
+        return;
+      }
+
+      stocks[category].push(ticker);
+      input.value = '';
+      renderTags(category);
+      showError(''); // Clear errors
+    }
+
+    function removeStock(category, ticker) {
+      stocks[category] = stocks[category].filter(t => t !== ticker);
+      renderTags(category);
+    }
+
+    function renderTags(category) {
+      const container = document.querySelector(`[data-category="${category}"] ~ .stock-tags`);
+      container.innerHTML = stocks[category].map(ticker =>
+        `<div class="stock-tag">
+          ${ticker}
+          <span class="remove" onclick="removeStock('${category}', '${ticker}')">×</span>
+        </div>`
+      ).join('');
+    }
+
+    function clearAll() {
+      Object.keys(stocks).forEach(category => {
+        stocks[category] = [];
+        renderTags(category);
+      });
+      document.getElementById('resultsSection').classList.remove('active');
+      showError('');
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMsg');
+      if (message) {
+        errorDiv.textContent = message;
+        errorDiv.classList.add('active');
+      } else {
+        errorDiv.classList.remove('active');
+      }
+    }
+
+    async function analyzePortfolio(e) {
+      e.preventDefault();
+
+      const totalStocks = Object.values(stocks).reduce((sum, arr) => sum + arr.length, 0);
+      if (totalStocks === 0) {
+        showError('Please add at least one stock');
+        return;
+      }
+
+      const analysisDate = document.getElementById('analysisDate').value;
+      if (!analysisDate) {
+        showError('Please select an analysis date');
+        return;
+      }
+
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('resultsSection').classList.remove('active');
+      document.getElementById('analyzeBtn').disabled = true;
+
+      try {
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            stocks,
+            analysisDate
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Analysis failed');
+        }
+
+        const data = await response.json();
+        displayResults(data);
+        document.getElementById('resultsSection').classList.add('active');
+      } catch (error) {
+        showError(`Error: ${error.message}`);
+      } finally {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('analyzeBtn').disabled = false;
+      }
+    }
+
+    function displayResults(data) {
+      // Display market regime if available
+      if (data.marketRegime) {
+        const card = document.getElementById('marketRegimeCard');
+        const content = document.getElementById('regimeContent');
+        content.innerHTML = `
+          <div class="regime-badge regime-${data.marketRegime.regime.toLowerCase()}">
+            ${data.marketRegime.regime} - ${data.marketRegime.strength}
+          </div>
+          <p style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
+            ${data.marketRegime.notes ? data.marketRegime.notes.join(' • ') : 'Market analysis in progress'}
+          </p>
+        `;
+        card.style.display = 'block';
+      }
+
+      // Display signals
+      const grid = document.getElementById('resultsGrid');
+      grid.innerHTML = data.signals.map(signal => `
+        <div class="signal-card ${signal.signal.toLowerCase()}">
+          <div class="signal-header">
+            <div class="ticker">${signal.ticker}</div>
+            <div class="signal-badge ${signal.signal.toLowerCase()}">${signal.signal}</div>
+          </div>
+          <div class="signal-details">
+            <div class="detail-row">
+              <span class="detail-label">Strategy</span>
+              <span class="detail-value">${signal.strategy}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Trend</span>
+              <span class="detail-value">${signal.trend}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Momentum</span>
+              <span class="detail-value">${signal.momentum}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">RSI</span>
+              <span class="detail-value">${signal.rsi.toFixed(2)}</span>
+            </div>
+            ${signal.criteria_met && signal.criteria_met.length > 0 ? `
+              <div style="border-top: 1px solid #eee; padding-top: 0.75rem; margin-top: 0.75rem;">
+                <span class="detail-label">Criteria Met</span>
+                <ul style="list-style: none; margin-top: 0.5rem; padding-left: 0;">
+                  ${signal.criteria_met.slice(0, 3).map(c => `<li>✓ ${c}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('analysisForm').addEventListener('submit', analyzePortfolio);
+
+    // Allow Enter key to add stocks
+    document.querySelectorAll('.stock-ticker').forEach(input => {
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addStock(input.nextElementSibling);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
